@@ -45,19 +45,15 @@ jobs:
       - name: Run Packer build
         if: contains(env.commit_message, 'Create AMI')
         run: |
-          packer build ami.pkr.hcl
-
-      - name: Output AMI ID
-        if: contains(env.commit_message, 'Create AMI')
-        id: ami_id
-        run: |
-          echo "::set-output name=ami_id::$(packer build -machine-readable ami.pkr.hcl | grep 'artifact,0,id' | cut -d, -f6)"
-
-      - name: Save AMI ID as output
-        if: contains(env.commit_message, 'Create AMI')
-        run: |
-          AMI_ID=$(packer build -machine-readable ami.pkr.hcl | grep 'artifact,0,id' | cut -d, -f6)
+          packer build ami.pkr.hcl > build.log
+          AMI_ID=$(jq -r '.[0].id' build.log)
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+
+      - name: Use AMI ID
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          echo "The AMI ID is: ${{ env.AMI_ID }}"
+
 
 
         
