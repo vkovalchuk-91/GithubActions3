@@ -4,12 +4,18 @@ provider "aws" {
 
 variable "AMI_ID" {
   type = string
-  default = ${{ secrets.AMI_ID }}
+  default = ""
 }
 
 resource "aws_instance" "app_server" {
   ami           = var.AMI_ID
   instance_type = "t2.micro"
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo docker-compose up -d"
+    ]
+  }
 
   tags = {
     Name = "AWS_TERRAFORM_TEST"
@@ -25,13 +31,5 @@ resource "aws_security_group" "web_sg" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_instance" "app_server" {
-  provisioner "remote-exec" {
-    inline = [
-      "sudo docker-compose up -d"
-    ]
   }
 }
