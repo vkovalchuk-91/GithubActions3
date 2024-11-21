@@ -61,26 +61,27 @@ jobs:
       - name: Set AMI ID1
         if: contains(env.commit_message, 'Set AMI')
         run: |
-          echo "AMI_ID=1111" > ami_id.txt
+          echo "AMI_ID=1111" >> ami_id.txt
              
       - name: Set AMI ID2
         if: contains(env.commit_message, 'Set AMI')
-        uses: actions/upload-artifact@v4
-        with:
-          name: AMI_ID
-          path: ami_id.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN }}
+        run: |
+          AMI_ID=$(cat ami_id.txt)
+          echo "Updating AMI_ID with value: $AMI_ID"
+          curl -X PUT \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/secrets/AMI_ID \
+            -d "$(jq -n --arg value "$AMI_ID" --arg key "$(echo -n ${{ secrets.REPO_PUBLIC_KEY }} | base64 -d)" \
+                '{"encrypted_value": $value, "key_id": $key}')""
         
       - name: Test AMI ID1
         if: contains(env.commit_message, 'Test AMI')
-        uses: actions/download-artifact@v4
-        with:
-          name: AMI_ID
-          
-      - name: Test AMI ID2
-        if: contains(env.commit_message, 'Test AMI')
-        run: |
-          AMI_ID=$(cat ami_id.txt)
-          echo "The AMI ID is: ${{ env.AMI_ID }}"
+        env:
+          AMI_ID: ${{ secrets.AMI_ID }}
+        run: echo "The current AMI_ID is:$AMI_ID"
 
         
 
