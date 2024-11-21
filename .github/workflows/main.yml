@@ -61,20 +61,34 @@ jobs:
       - name: Set AMI ID1
         if: contains(env.commit_message, 'Set AMI')
         run: |
-          echo "::set-output name=ami_id::11111"
+          echo "AMI_ID=1111" >> $GITHUB_ENV
              
       - name: Set AMI ID2
         if: contains(env.commit_message, 'Set AMI')
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GIT_HUB_TOKEN }}
+          result-encoding: string
+          github-token: ${{ env.GIT_HUB_TOKEN }}
           script: |
-            github.repos.createOrUpdateSecret({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              secret_name: 'AMI_ID',
-              secret_value: steps.set_ami_id.outputs.ami_id
-            })
+            const sodium = require('sodium-native');
+            const { data: {key: publicKey, key_id: keyId} } = await github.rest.actions.getRepoPublicKey({...context.repo});
+            if (publicKey) {
+              const key = Buffer.from(publicKey, 'base64');
+              const message = Buffer.from(process.env.AMI_ID);
+              const ciphertext = Buffer.alloc(message.length + sodium.crypto_box_SEALBYTES);
+
+              sodium.crypto_box_seal(ciphertext, message, key);
+              const encryptedToken = ciphertext.toString('base64');
+
+              await github.rest.actions.createOrUpdateRepoSecret({
+                ...context.repo, 
+                secret_name: 'AMI_ID',
+                encrypted_value: encryptedToken,
+                key_id: keyId,
+              });
+            } else {
+              core.error('Failed to fetch the public key. Unable to update secret');
+            }
         
       - name: Test AMI ID1
         if: contains(env.commit_message, 'Test AMI')
