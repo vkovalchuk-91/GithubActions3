@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -65,11 +65,13 @@ jobs:
              
       - name: Set AMI ID2
         if: contains(env.commit_message, 'Set AMI')
-        uses: NikhilVashistha/update-github-action-secret@v1.0.3
+        uses: punitkashyup/action-secrets-update@v1.0.6
         with:
-          github_token: ${{ secrets.GIT_HUB_TOKEN }}
+          repository_owner: vkovalchuk-91
+          repository_name: GithubActions3
           secret_name: AMI_ID
-          secret_value: ${{ env.AMI_ID1 }}
+          new_secret_value: ${{ env.AMI_ID1 }}
+          github_token: ${{ secrets.GIT_HUB_TOKEN }}
           
       - name: Test AMI ID1
         if: contains(env.commit_message, 'Test AMI')
