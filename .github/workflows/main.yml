@@ -58,6 +58,11 @@ jobs:
         run: |
           echo "The AMI ID is: ${{ env.AMI_ID }}"
 
+      - name: Set AMI ID
+        if: contains(env.commit_message, 'Set AMI')
+        run: |
+          echo "AMI_ID=1111" >> $GITHUB_ENV
+          
       - name: Test AMI ID
         if: contains(env.commit_message, 'Test AMI')
         run: |
