@@ -111,7 +111,7 @@ jobs:
 
 
 
-      - name: Install Terraform 
+      - name: Install Terraform
         if: contains(env.commit_message, 'Destroy all')
         uses: hashicorp/setup-terraform@v2
           
