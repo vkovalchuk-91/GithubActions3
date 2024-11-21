@@ -61,58 +61,20 @@ jobs:
       - name: Set AMI ID1
         if: contains(env.commit_message, 'Set AMI')
         run: |
-          echo "AMI_ID=1111" >> ami_id.txt
+          echo "::set-output name=ami_id::11111"
              
       - name: Set AMI ID2
         if: contains(env.commit_message, 'Set AMI')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN }}
-        run: |
-          # 1. Отримуємо публічний ключ
-          echo "Fetching repository public key..."
-          response=$(curl -s -X GET \
-            -H "Authorization: Bearer $GIT_HUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/actions/secrets/public-key)
-
-          public_key=$(echo "$response" | jq -r '.key')
-          key_id=$(echo "$response" | jq -r '.key_id')
-
-          if [ -z "$public_key" ] || [ -z "$key_id" ]; then
-            echo "Failed to retrieve public key."
-            exit 1
-          fi
-
-          echo "Public key and key ID retrieved successfully."
-
-          # 2. Генеруємо нове значення AMI_ID
-          AMI_ID=$(cat ami_id.txt)
-          echo "Generated AMI_ID: $AMI_ID"
-
-          # 3. Зберігаємо публічний ключ у файл
-          echo "$public_key" | base64 -d > public_key.pem
-
-          # 4. Шифруємо значення AMI_ID
-          echo -n "$AMI_ID" | openssl pkeyutl -encrypt -pubin -inkey public_key.pem -out encrypted_value.bin
-          encrypted_value=$(base64 -w 0 < encrypted_value.bin)
-
-          if [ -z "$encrypted_value" ]; then
-            echo "Encryption failed."
-            exit 1
-          fi
-
-          echo "AMI_ID encrypted successfully."
-
-          # 5. Оновлюємо секрет AMI_ID
-          echo "Updating secret AMI_ID..."
-          curl -s -X PUT \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/actions/secrets/AMI_ID \
-            -d "$(jq -n --arg value "$encrypted_value" --arg key_id "$key_id" \
-                '{"encrypted_value":$value, "key_id":$key_id}')"
-
-          echo "AMI_ID secret updated successfully."
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GIT_HUB_TOKEN }}
+          script: |
+            github.repos.createOrUpdateSecret({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              secret_name: 'AMI_ID',
+              secret_value: steps.set_ami_id.outputs.ami_id
+            })
         
       - name: Test AMI ID1
         if: contains(env.commit_message, 'Test AMI')
