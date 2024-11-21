@@ -89,9 +89,12 @@ jobs:
           AMI_ID=$(cat ami_id.txt)
           echo "Generated AMI_ID: $AMI_ID"
 
-          # 3. Шифруємо значення AMI_ID
-          echo "$AMI_ID" | openssl pkeyutl -encrypt -pubin -inkey <(echo "$public_key") | base64 > encrypted_value.txt
-          encrypted_value=$(cat encrypted_value.txt)
+          # 3. Зберігаємо публічний ключ у файл
+          echo "$public_key" | base64 -d > public_key.pem
+
+          # 4. Шифруємо значення AMI_ID
+          echo -n "$AMI_ID" | openssl pkeyutl -encrypt -pubin -inkey public_key.pem -out encrypted_value.bin
+          encrypted_value=$(base64 -w 0 < encrypted_value.bin)
 
           if [ -z "$encrypted_value" ]; then
             echo "Encryption failed."
@@ -100,7 +103,7 @@ jobs:
 
           echo "AMI_ID encrypted successfully."
 
-          # 4. Оновлюємо секрет AMI_ID
+          # 5. Оновлюємо секрет AMI_ID
           echo "Updating secret AMI_ID..."
           curl -s -X PUT \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
