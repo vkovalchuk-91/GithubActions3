@@ -27,3 +27,11 @@ resource "aws_security_group" "web_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_instance" "app_server" {
+  provisioner "remote-exec" {
+    inline = [
+      "sudo docker-compose up -d"
+    ]
+  }
+}
