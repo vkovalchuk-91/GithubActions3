@@ -7,15 +7,11 @@ variable "AMI_ID" {
   default = ""
 }
 
-data "aws_security_group" "existing_sg" {
-  name = "security"
-}
-
 resource "aws_instance" "app_server" {
   ami           = var.AMI_ID
   instance_type = "t2.micro"
 
-  security_groups = length(data.aws_security_group.existing_sg.id) > 0 ? [data.aws_security_group.existing_sg.name] : [aws_security_group.web_sg.name]
+  vpc_sg_ids = [aws_security_group.web_sg.id]
 
   user_data = <<-EOF
     #!/bin/bash
@@ -29,7 +25,6 @@ resource "aws_instance" "app_server" {
 }
 
 resource "aws_security_group" "web_sg" {
-  count       = length(data.aws_security_group.existing_sg.id) > 0 ? 0 : 1
   name        = "security"
   description = "Allow HTTP and SSH traffic"
 
