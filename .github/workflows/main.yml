@@ -68,7 +68,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           result-encoding: string
-          github-token: ${{ env.GIT_HUB_TOKEN }}
+          github-token: ${{ secrets.GIT_HUB_TOKEN }}
           script: |
             const sodium = require('sodium-native');
             const { data: {key: publicKey, key_id: keyId} } = await github.rest.actions.getRepoPublicKey({...context.repo});
