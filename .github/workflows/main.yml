@@ -45,8 +45,12 @@ jobs:
       - name: Run Packer build
         if: contains(env.commit_message, 'Create AMI')
         run: |
-          packer build ami.pkr.hcl > build.log
-          AMI_ID=$(jq -r '.[0].id' build.log)
+          packer build ami.pkr.hcl  2>&1 | sudo tee output.txt
+          
+          # Витягування AMI ID з логів
+          AMI_ID=$(tail -2 output.txt | awk 'match($0, /ami-.*/) { print substr($0, RSTART, RLENGTH) }')
+          
+          # Збереження AMI ID як змінної середовища для подальших кроків
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
       - name: Use AMI ID
