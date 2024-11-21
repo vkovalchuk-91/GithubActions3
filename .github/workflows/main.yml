@@ -67,7 +67,7 @@ jobs:
         if: contains(env.commit_message, 'Set AMI')
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GIT_HUB_TOKEN }}
           script: |
             github.repos.createOrUpdateSecret({
               owner: context.repo.owner,
