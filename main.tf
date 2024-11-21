@@ -19,8 +19,9 @@ resource "aws_instance" "app_server" {
 
   user_data = <<-EOF
     #!/bin/bash
+    sleep 30
     cd /home/ubuntu/
-    sudo docker-compose up -d
+    sudo docker compose up -d
   EOF
 
   tags = {
