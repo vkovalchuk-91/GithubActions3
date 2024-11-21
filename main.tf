@@ -1,3 +1,12 @@
+terraform {
+  backend "s3" {
+    bucket = "github-actions-slengpack"  # Замість цього вкажіть свій бакет S3
+    key    = "terraform.tfstate"    # Шлях до файлу стану
+    region = "eu-central-1"                    # Вкажіть регіон
+    encrypt = true                          # Шифрування для безпеки
+  }
+}
+
 provider "aws" {
   region = "eu-central-1"
 }
