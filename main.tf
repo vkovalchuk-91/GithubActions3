@@ -1,7 +1,7 @@
 terraform {
   backend "remote" {
     organization = "slengpack"
-
+    hostname     = "app.terraform.io"
     workspaces {
       name = "GithubActions3"
     }
