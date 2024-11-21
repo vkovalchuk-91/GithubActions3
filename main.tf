@@ -1,3 +1,13 @@
+terraform {
+  backend "remote" {
+    organization = "slengpack"
+
+    workspaces {
+      name = "GithubActions3"
+    }
+  }
+}
+
 provider "aws" {
   region = "eu-central-1"
 }
