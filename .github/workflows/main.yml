@@ -57,35 +57,56 @@ jobs:
         if: contains(env.commit_message, 'Create AMI')
         run: |
           echo "The AMI ID is: ${{ env.AMI_ID }}"
-          
-      - name: Set AMI ID1
-        if: contains(env.commit_message, 'Set AMI')
-        run: |
-          echo "AMI_ID1=1111" >> $GITHUB_ENV
-             
-      - name: Set AMI ID2
-        if: contains(env.commit_message, 'Set AMI')
+
+      - name: Set New AMI ID
+        if: contains(env.commit_message, 'Create AMI')
         uses: punitkashyup/action-secrets-update@v1.0.6
         with:
           repository_owner: vkovalchuk-91
           repository_name: GithubActions3
           secret_name: AMI_ID
-          new_secret_value: ${{ env.AMI_ID1 }}
-          github_token: ${{ secrets.GIT_HUB_TOKEN }}
+          new_secret_value: ${{ env.AMI_ID }}
+          github_token: ${{ secrets.GIT_HUB_TOKEN }}   
           
-      - name: Test AMI ID11
-        if: contains(env.commit_message, 'Test AMI')
-        env:
-          AMI_ID: ${{ secrets.AMI_ID }}
-        run: echo "The current AMI_ID is:$AMI_ID"
+  
+
+
 
         
 
-      - name: Run Action 2 (if message contains 'Run AMI')
+      - name: Install Terraform
         if: contains(env.commit_message, 'Run AMI')
-        run: |
-          echo "Running Action 2 based on commit message..."
-          # Додайте тут свої команди для виконання Action 2
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Init Terraform
+        if: contains(env.commit_message, 'Run AMI')
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Plan Terraform
+        if: contains(env.commit_message, 'Run AMI')
+        run: terraform plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Apply Terraform
+        if: contains(env.commit_message, 'Run AMI')
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+
+
+
+
+
+
+          
 
       - name: Run Action 3 (if message contains 'Destroy all')
         if: contains(env.commit_message, 'Destroy all')
