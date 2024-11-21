@@ -90,7 +90,7 @@ jobs:
           echo "Generated AMI_ID: $AMI_ID"
 
           # 3. Шифруємо значення AMI_ID
-          echo "$AMI_ID" | openssl rsautl -encrypt -pubin -inkey <(echo "$public_key") | base64 > encrypted_value.txt
+          echo "$AMI_ID" | openssl pkeyutl -encrypt -pubin -inkey <(echo "$public_key") | base64 > encrypted_value.txt
           encrypted_value=$(cat encrypted_value.txt)
 
           if [ -z "$encrypted_value" ]; then
