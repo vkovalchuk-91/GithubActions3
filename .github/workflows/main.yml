@@ -82,6 +82,7 @@ jobs:
         if: contains(env.commit_message, 'Run AMI')
         run: terraform init
         env:
+          TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -89,6 +90,7 @@ jobs:
         if: contains(env.commit_message, 'Run AMI')
         run: terraform plan
         env:
+          TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -96,6 +98,7 @@ jobs:
         if: contains(env.commit_message, 'Run AMI')
         run: terraform apply -auto-approve
         env:
+          TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
