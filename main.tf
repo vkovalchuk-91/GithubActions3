@@ -1,6 +1,10 @@
 terraform {
-  backend "local" {
-    path = "terraform.tfstate"
+  backend "remote" {
+    organization = "slengpack"
+
+    workspaces {
+      name = "GithubActions3"
+    }
   }
 }
 
