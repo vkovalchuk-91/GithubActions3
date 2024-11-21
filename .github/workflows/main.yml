@@ -76,7 +76,7 @@ jobs:
 
 
 
-      - name: Install Terraform 
+      - name: Install Terraform
         if: contains(env.commit_message, 'Run AMI')
         uses: hashicorp/setup-terraform@v2
 
