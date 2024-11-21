@@ -78,6 +78,11 @@ jobs:
         if: contains(env.commit_message, 'Run AMI')
         uses: hashicorp/setup-terraform@v2
 
+      - name: Set up Terraform Cloud authentication
+        if: contains(env.commit_message, 'Run AMI')
+        run: |
+          echo "TFC_TOKEN=${{ secrets.TFC_TOKEN }}" >> $GITHUB_ENV
+
       - name: Init Terraform
         if: contains(env.commit_message, 'Run AMI')
         run: terraform init
@@ -111,7 +116,11 @@ jobs:
 
 
 
-
+      - name: Set up Terraform Cloud authentication
+        if: contains(env.commit_message, 'Destroy all')
+        run: |
+          echo "TFC_TOKEN=${{ secrets.TFC_TOKEN }}" >> $GITHUB_ENV
+          
       - name: Init Terraform
         if: contains(env.commit_message, 'Destroy all')
         run: terraform init
