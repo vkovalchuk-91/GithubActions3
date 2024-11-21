@@ -61,15 +61,15 @@ jobs:
       - name: Set AMI ID1
         if: contains(env.commit_message, 'Set AMI')
         run: |
-          echo "AMI_ID=1111" >> $GITHUB_ENV
+          echo "AMI_ID1=1111" >> $GITHUB_ENV
              
       - name: Set AMI ID2
         if: contains(env.commit_message, 'Set AMI')
         uses: NikhilVashistha/update-github-action-secret@v1.0.3
         with:
-          github_token: ${{ secrets.GIT_HUB_TOKEN }} # Your github token to allow access to the API
-          secret_name: 'AMI_ID' # Github Secret key name for update
-          secret_value: '11111111' # Github Secret value to update
+          github_token: ${{ secrets.GIT_HUB_TOKEN }}
+          secret_name: AMI_ID
+          secret_value: ${{ env.AMI_ID1 }}
           
       - name: Test AMI ID1
         if: contains(env.commit_message, 'Test AMI')
