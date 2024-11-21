@@ -1,0 +1,68 @@
+name: Run Actions Based on Commit Message
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  process-commit-message:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get commit message
+        id: get_message
+        run: |
+          # Отримуємо останнє повідомлення коміту
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "Last commit message: $COMMIT_MESSAGE"
+          echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_ENV
+
+      - name: Run 'Create AMI' Action (if message contains 'Create AMI')
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          echo "Running 'Create AMI' Action based on commit message..."
+
+      - name: Set up Packer
+        if: contains(env.commit_message, 'Create AMI')
+        uses: hashicorp/setup-packer@v1
+
+      - name: Initialize Packer
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          packer init ami.pkr.hcl
+          
+      - name: Run Packer build
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          packer build ami.pkr.hcl
+
+      - name: Output AMI ID
+        if: contains(env.commit_message, 'Create AMI')
+        id: ami_id
+        run: |
+          echo "::set-output name=ami_id::$(packer build -machine-readable ami.pkr.hcl | grep 'artifact,0,id' | cut -d, -f6)"
+
+      - name: Save AMI ID as output
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          AMI_ID=$(packer build -machine-readable ami.pkr.hcl | grep 'artifact,0,id' | cut -d, -f6)
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+
+
+        
+
+      - name: Run Action 2 (if message contains 'Run AMI')
+        if: contains(env.commit_message, 'Run AMI')
+        run: |
+          echo "Running Action 2 based on commit message..."
+          # Додайте тут свої команди для виконання Action 2
+
+      - name: Run Action 3 (if message contains 'Destroy all')
+        if: contains(env.commit_message, 'Destroy all')
+        run: |
+          echo "Running Action 3 based on commit message..."
+          # Додайте тут свої команди для виконання Action 3
