@@ -7,11 +7,15 @@ variable "AMI_ID" {
   default = ""
 }
 
+data "aws_security_group" "existing_sg" {
+  name = "default"
+}
+
 resource "aws_instance" "app_server" {
   ami           = var.AMI_ID
   instance_type = "t2.micro"
 
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
+  vpc_security_group_ids = [data.aws_security_group.existing_sg.id]
 
   user_data = <<-EOF
     #!/bin/bash
@@ -21,24 +25,5 @@ resource "aws_instance" "app_server" {
 
   tags = {
     Name = "AWS_TERRAFORM_TEST"
-  }
-}
-
-resource "aws_security_group" "web_sg" {
-  name        = "security"
-  description = "Allow HTTP and SSH traffic"
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "ssh"
-    cidr_blocks = ["0.0.0.0/0"]
   }
 }
