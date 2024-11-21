@@ -62,7 +62,7 @@ jobs:
         if: contains(env.commit_message, 'Set AMI')
         run: |
           echo "AMI_ID=1111" >> $GITHUB_ENV
-            
+             
       - name: Set AMI ID2
         if: contains(env.commit_message, 'Set AMI')
         uses: actions/github-script@v6
