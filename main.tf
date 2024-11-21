@@ -12,6 +12,12 @@ resource "aws_instance" "app_server" {
   instance_type = "t2.micro"
 
   provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("~/.ssh/id_rsa")
+      host        = self.public_ip
+    }
     inline = [
       "sudo docker-compose up -d"
     ]
