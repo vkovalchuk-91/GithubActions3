@@ -7,14 +7,14 @@ variable "AMI_ID" {
   default = ""
 }
 
-variable "private_key_path" {
-  type    = string
-  default = "/home/ubuntu/.ssh/id_rsa"
+resource "tls_private_key" "example" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
 }
 
 resource "aws_key_pair" "ec2_key" {
   key_name   = "ec2-key-pair"
-  public_key = file("${var.private_key_path}.pub")  # Публічний ключ, що створений на кроці 1
+  public_key = tls_private_key.example.public_key_openssh
 }
 
 resource "aws_instance" "app_server" {
@@ -26,7 +26,7 @@ resource "aws_instance" "app_server" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file(var.private_key_path)
+      private_key = tls_private_key.example.private_key_pem
       host        = self.public_ip
     }
     inline = [
