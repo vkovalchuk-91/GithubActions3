@@ -58,10 +58,23 @@ jobs:
         run: |
           echo "The AMI ID is: ${{ env.AMI_ID }}"
 
-      - name: Set AMI ID
+      - name: Set AMI ID1
         if: contains(env.commit_message, 'Set AMI')
         run: |
           echo "AMI_ID=1111" >> $GITHUB_ENV
+            
+      - name: Set AMI ID2
+        if: contains(env.commit_message, 'Set AMI')
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.repos.createOrUpdateSecret({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              secret_name: 'AMI_ID',
+              secret_value: ${{ env.AMI_ID }}
+            })
         
       - name: Test AMI ID
         if: contains(env.commit_message, 'Test AMI')
