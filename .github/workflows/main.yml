@@ -78,9 +78,10 @@ jobs:
 
       - name: Install Terraform 
         if: contains(env.commit_message, 'Run AMI')
-        uses: hashicorp/setup-terraform@v2
-        with:
-         cli_config_credentials_token: ${{ secrets.TFC_TOKEN }}
+        run: |
+          wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update && sudo apt install terraform
 
       - name: Init Terraform
         if: contains(env.commit_message, 'Run AMI')
@@ -100,7 +101,7 @@ jobs:
 
       - name: Apply Terraform
         if: contains(env.commit_message, 'Run AMI')
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -input=false
         env:
           TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
