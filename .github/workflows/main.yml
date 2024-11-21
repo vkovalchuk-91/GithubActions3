@@ -73,7 +73,7 @@ jobs:
           new_secret_value: ${{ env.AMI_ID1 }}
           github_token: ${{ secrets.GIT_HUB_TOKEN }}
           
-      - name: Test AMI ID1
+      - name: Test AMI ID11
         if: contains(env.commit_message, 'Test AMI')
         env:
           AMI_ID: ${{ secrets.AMI_ID }}
