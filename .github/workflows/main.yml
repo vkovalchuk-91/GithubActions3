@@ -71,7 +71,7 @@ jobs:
           # 1. Отримуємо публічний ключ
           echo "Fetching repository public key..."
           response=$(curl -s -X GET \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Authorization: Bearer $GIT_HUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/actions/secrets/public-key)
 
