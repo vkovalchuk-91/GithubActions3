@@ -76,11 +76,11 @@ jobs:
 
 
 
-      - name: Set up Terraform Cloud authentication
+      - name: Install Terraform 
         if: contains(env.commit_message, 'Run AMI')
-        uses: hashicorp/tfc-workflows-github/cli-login@v1
+        uses: hashicorp/setup-terraform@v2
         with:
-          token: ${{ secrets.TFC_TOKEN }}
+         cli_config_credentials_token: ${{ secrets.TFC_TOKEN }}
 
       - name: Init Terraform
         if: contains(env.commit_message, 'Run AMI')
