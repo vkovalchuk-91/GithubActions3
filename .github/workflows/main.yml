@@ -70,9 +70,16 @@ jobs:
           name: AMI_ID
           path: ami_id.txt
         
-      - name: Test AMI ID
+      - name: Test AMI ID1
+        if: contains(env.commit_message, 'Test AMI')
+        uses: actions/download-artifact@v4
+        with:
+          name: AMI_ID
+          
+      - name: Test AMI ID2
         if: contains(env.commit_message, 'Test AMI')
         run: |
+          AMI_ID=$(cat ami_id.txt)
           echo "The AMI ID is: ${{ env.AMI_ID }}"
 
         
