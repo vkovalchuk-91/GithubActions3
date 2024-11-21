@@ -1,12 +1,9 @@
-terraform { 
-  cloud { 
-    
-    organization = "slengpack" 
-
-    workspaces { 
-      name = "GH_ACTIONS" 
-    } 
-  } 
+terraform {
+  backend "s3"{
+  bucket = "github-actions-slengpack"
+  key = "terrraform.tfstate"
+  region = "eu-central-1"
+  }
 }
 
 provider "aws" {
