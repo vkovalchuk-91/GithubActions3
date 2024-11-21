@@ -77,6 +77,8 @@ jobs:
       - name: Install Terraform 
         if: contains(env.commit_message, 'Run AMI')
         uses: hashicorp/setup-terraform@v2
+        with:
+         cli_config_credentials_token: ${{ secrets.TFC_TOKEN }}
 
       - name: Set up Terraform Cloud authentication
         if: contains(env.commit_message, 'Run AMI')
