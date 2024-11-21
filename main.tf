@@ -7,20 +7,15 @@ variable "AMI_ID" {
   default = ""
 }
 
-resource "tls_private_key" "example" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-resource "aws_key_pair" "ec2_key" {
-  key_name   = "ec2-key-pair"
-  public_key = tls_private_key.example.public_key_openssh
+data "aws_security_group" "existing_sg" {
+  name = "security"
 }
 
 resource "aws_instance" "app_server" {
   ami           = var.AMI_ID
   instance_type = "t2.micro"
-  key_name      = aws_key_pair.ec2_key.key_name
+
+  security_groups = length(data.aws_security_group.existing_sg.id) > 0 ? [data.aws_security_group.existing_sg.name] : [aws_security_group.web_sg.name]
 
   user_data = <<-EOF
     #!/bin/bash
@@ -34,8 +29,9 @@ resource "aws_instance" "app_server" {
 }
 
 resource "aws_security_group" "web_sg" {
+  count       = length(data.aws_security_group.existing_sg.id) > 0 ? 0 : 1
   name        = "security"
-  description = "Allow 80 port"
+  description = "Allow HTTP and SSH traffic"
 
   ingress {
     from_port   = 80
