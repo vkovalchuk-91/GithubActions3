@@ -7,15 +7,26 @@ variable "AMI_ID" {
   default = ""
 }
 
+variable "private_key_path" {
+  type    = string
+  default = "/home/ubuntu/.ssh/id_rsa"
+}
+
+resource "aws_key_pair" "ec2_key" {
+  key_name   = "ec2-key-pair"
+  public_key = file("${var.private_key_path}.pub")  # Публічний ключ, що створений на кроці 1
+}
+
 resource "aws_instance" "app_server" {
   ami           = var.AMI_ID
   instance_type = "t2.micro"
+  key_name      = aws_key_pair.ec2_key.key_name
 
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file("~/.ssh/id_rsa")
+      private_key = file(var.private_key_path)
       host        = self.public_ip
     }
     inline = [
@@ -36,6 +47,13 @@ resource "aws_security_group" "web_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "ssh"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
