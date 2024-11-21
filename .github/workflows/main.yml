@@ -58,7 +58,10 @@ jobs:
         run: |
           echo "The AMI ID is: ${{ env.AMI_ID }}"
 
-
+      - name: Test AMI ID
+        if: contains(env.commit_message, 'Test AMI')
+        run: |
+          echo "The AMI ID is: ${{ env.AMI_ID }}"
 
         
 
