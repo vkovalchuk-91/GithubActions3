@@ -28,7 +28,7 @@ jobs:
 
       - name: Set up Packer
         if: contains(env.commit_message, 'Create AMI')
-        uses: hashicorp/setup-packer@v1
+        uses: hashicorp/setup-packer@v2
 
       - name: Initialize Packer
         if: contains(env.commit_message, 'Create AMI')
