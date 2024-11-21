@@ -1,11 +1,12 @@
-terraform {
-  backend "remote" {
-    organization = "slengpack"
-    hostname     = "app.terraform.io"
-    workspaces {
-      name = "GithubActions3"
-    }
-  }
+terraform { 
+  cloud { 
+    
+    organization = "slengpack" 
+
+    workspaces { 
+      name = "GH_ACTIONS" 
+    } 
+  } 
 }
 
 provider "aws" {
