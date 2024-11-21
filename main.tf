@@ -22,17 +22,11 @@ resource "aws_instance" "app_server" {
   instance_type = "t2.micro"
   key_name      = aws_key_pair.ec2_key.key_name
 
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = "ubuntu"
-      private_key = tls_private_key.example.private_key_pem
-      host        = self.public_ip
-    }
-    inline = [
-      "sudo docker-compose up -d"
-    ]
-  }
+  user_data = <<-EOF
+    #!/bin/bash
+    cd /home/ubuntu/
+    sudo docker-compose up -d
+  EOF
 
   tags = {
     Name = "AWS_TERRAFORM_TEST"
