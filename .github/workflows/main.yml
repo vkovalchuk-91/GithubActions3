@@ -125,7 +125,7 @@ jobs:
 
       - name: Run Action 3 (if message contains 'Destroy all')
         if: contains(env.commit_message, 'Destroy all')
-        run: terraform destroy
+        run: terraform destroy  -auto-approve -input=false
         env:
           TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
