@@ -57,10 +57,6 @@ jobs:
         if: contains(env.commit_message, 'Create AMI')
         run: |
           echo "The AMI ID is: ${{ env.AMI_ID }}"
-
-      - name: Set AMI ID0
-        if: contains(env.commit_message, 'Set AMI')
-        uses: actions/checkout@v2
           
       - name: Set AMI ID1
         if: contains(env.commit_message, 'Set AMI')
@@ -69,13 +65,11 @@ jobs:
              
       - name: Set AMI ID2
         if: contains(env.commit_message, 'Set AMI')
-        uses: punitkashyup/update-secret-action@v1
+        uses: NikhilVashistha/update-github-action-secret@v1.0.3
         with:
-          repository_owner: context.repo.owner
-          repository_name: context.repo.repo
-          secret_name: AMI_ID
-          new_secret_value: $AMI_ID
-          github_token: ${{ secrets.GIT_HUB_TOKEN }}
+          github_token: ${{ secrets.GIT_HUB_TOKEN }} # Your github token to allow access to the API
+          secret_name: 'AMI_ID' # Github Secret key name for update
+          secret_value: '11111111' # Github Secret value to update
           
       - name: Test AMI ID1
         if: contains(env.commit_message, 'Test AMI')
