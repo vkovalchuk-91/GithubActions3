@@ -55,5 +55,5 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           message: |
-            *AMI Id*: ${{ secrets.AMI_ID }}
+            *AMI Id*: `${{ secrets.AMI_ID }}`
             *Terraform Apply Status*: ${{ env.TERRAFORM_STATUS }}
