@@ -1,4 +1,4 @@
-name: Run Actions Manually
+name: Create AMI
 
 on:
   workflow_dispatch:
