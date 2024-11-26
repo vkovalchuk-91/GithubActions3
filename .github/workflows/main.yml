@@ -1,72 +1,73 @@
-# name: Run Actions Based on Commit Message
+name: Run Actions Based on Commit Message
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
 
-# jobs:
-#   process-commit-message:
-#     runs-on: ubuntu-latest
+jobs:
+  process-commit-message:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v2
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: eu-central-1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
           
-#       - name: Get commit message
-#         id: get_message
-#         run: |
-#           # Отримуємо останнє повідомлення коміту
-#           COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-#           echo "Last commit message: $COMMIT_MESSAGE"
-#           echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_ENV
+      - name: Get commit message
+        id: get_message
+        run: |
+          # Отримуємо останнє повідомлення коміту
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "Last commit message: $COMMIT_MESSAGE"
+          echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_ENV
 
-#       - name: Run 'Create AMI' Action (if message contains 'Create AMI')
-#         if: contains(env.commit_message, 'Create AMI')
-#         run: |
-#           echo "Running 'Create AMI' Action based on commit message..."
+      - name: Run 'Create AMI' Action (if message contains 'Create AMI')
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          echo "Running 'Create AMI' Action based on commit message..."
 
-#       - name: Set up Packer
-#         if: contains(env.commit_message, 'Create AMI')
-#         uses: hashicorp/setup-packer@v2
+      - name: Set up Packer
+        if: contains(env.commit_message, 'Create AMI')
+        uses: hashicorp/setup-packer@v2
 
-#       - name: Initialize Packer
-#         if: contains(env.commit_message, 'Create AMI')
-#         run: |
-#           packer init ami.pkr.hcl
+      - name: Initialize Packer
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          packer init ami.pkr.hcl
           
-#       - name: Run Packer build
-#         if: contains(env.commit_message, 'Create AMI')
-#         run: |
-#           packer build ami.pkr.hcl  2>&1 | sudo tee output.txt
+      - name: Run Packer build
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          packer build ami.pkr.hcl  2>&1 | sudo tee output.txt
           
-#           # Витягування AMI ID з логів
-#           AMI_ID=$(tail -2 output.txt | awk 'match($0, /ami-.*/) { print substr($0, RSTART, RLENGTH) }')
+          # Витягування AMI ID з логів
+          AMI_ID=$(tail -2 output.txt | awk 'match($0, /ami-.*/) { print substr($0, RSTART, RLENGTH) }')
           
-#           # Збереження AMI ID як змінної середовища для подальших кроків
-#           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+          # Збереження AMI ID як змінної середовища для подальших кроків
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
-#       - name: Use AMI ID
-#         if: contains(env.commit_message, 'Create AMI')
-#         run: |
-#           echo "The AMI ID is: ${{ env.AMI_ID }}"
+      - name: Use AMI ID
+        if: contains(env.commit_message, 'Create AMI')
+        run: |
+          echo "The AMI ID is: ${{ env.AMI_ID }}"
 
-#       - name: Set New AMI ID
-#         if: contains(env.commit_message, 'Create AMI')
-#         uses: punitkashyup/action-secrets-update@v1.0.6
-#         with:
-#           repository_owner: vkovalchuk-91
-#           repository_name: GithubActions3
-#           secret_name: AMI_ID
-#           new_secret_value: ${{ env.AMI_ID }}
-#           github_token: ${{ secrets.GIT_HUB_TOKEN }}   
+      - name: Set New AMI ID
+        if: contains(env.commit_message, 'Create AMI')
+        uses: punitkashyup/action-secrets-update@v1.0.6
+        with:
+          repository_owner: vkovalchuk-91
+          repository_name: GithubActions3
+          secret_name: AMI_ID
+          new_secret_value: ${{ env.AMI_ID }}
+          github_token: ${{ secrets.GIT_HUB_TOKEN }}   
           
   
 
@@ -76,57 +77,57 @@
 
 
 
-#       - name: Install Terraform
-#         if: contains(env.commit_message, 'Run AMI')
-#         uses: hashicorp/setup-terraform@v2
+      - name: Install Terraform
+        if: contains(env.commit_message, 'Run AMI')
+        uses: hashicorp/setup-terraform@v2
 
-#       - name: Init Terraform
-#         if: contains(env.commit_message, 'Run AMI')
-#         run: terraform init
-#         env:
-#           TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Init Terraform
+        if: contains(env.commit_message, 'Run AMI')
+        run: terraform init
+        env:
+          TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-#       - name: Plan Terraform
-#         if: contains(env.commit_message, 'Run AMI')
-#         run: terraform plan
-#         env:
-#           TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Plan Terraform
+        if: contains(env.commit_message, 'Run AMI')
+        run: terraform plan
+        env:
+          TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-#       - name: Apply Terraform
-#         if: contains(env.commit_message, 'Run AMI')
-#         run: terraform apply -auto-approve -input=false
-#         env:
-#           TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-
+      - name: Apply Terraform
+        if: contains(env.commit_message, 'Run AMI')
+        run: terraform apply -auto-approve -input=false
+        env:
+          TF_VAR_AMI_ID: ${{ secrets.AMI_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
 
 
 
 
-#       - name: Install Terraform
-#         if: contains(env.commit_message, 'Destroy all')
-#         uses: hashicorp/setup-terraform@v2
+
+
+      - name: Install Terraform
+        if: contains(env.commit_message, 'Destroy all')
+        uses: hashicorp/setup-terraform@v2
           
-#       - name: Init Terraform
-#         if: contains(env.commit_message, 'Destroy all')
-#         run: terraform init
-#         env:
-#           TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}          
+      - name: Init Terraform
+        if: contains(env.commit_message, 'Destroy all')
+        run: terraform init
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}          
 
-#       - name: Run Action 3 (if message contains 'Destroy all')
-#         if: contains(env.commit_message, 'Destroy all')
-#         run: terraform destroy  -auto-approve -input=false
-#         env:
-#           TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Run Action 3 (if message contains 'Destroy all')
+        if: contains(env.commit_message, 'Destroy all')
+        run: terraform destroy  -auto-approve -input=false
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
