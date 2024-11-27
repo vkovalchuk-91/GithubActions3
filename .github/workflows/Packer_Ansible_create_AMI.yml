@@ -1,4 +1,4 @@
-name: Create AMI
+name: Create AMI (with Packer and Ansible)
 
 on:
   workflow_dispatch:
