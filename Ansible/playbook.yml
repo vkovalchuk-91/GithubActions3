@@ -1,0 +1,72 @@
+---
+- name: Setup Docker environment, Docker Compose, and nginx on AWS instance
+  hosts: default
+  become: true
+  tasks:
+    - name: Update and install prerequisite packages
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+        state: present
+
+    - name: Update the apt package index
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Ensure pip3 is installed
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install Docker Compose using pip3
+      pip:
+        name: docker-compose
+        state: present
+
+    - name: Verify Docker Compose installation
+      command: docker-compose --version
+      register: result
+      ignore_errors: yes
+
+    - name: Add user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Copy docker-compose.yml
+      copy:
+        src: "./docker-compose.yml"
+        dest: "/home/ubuntu/docker-compose.yml"
+        mode: '0644'
+
+    - name: Creates directory
+      file:
+        path: "/home/ubuntu/nginx-conf"
+        state: directory
+
+    - name: Copy nginx.conf
+      copy:
+        src: "./nginx.conf"
+        dest: "/home/ubuntu/nginx-conf/nginx.conf"
+        mode: '0644'
