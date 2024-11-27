@@ -67,6 +67,6 @@
 
     - name: Copy nginx.conf
       copy:
-        src: "./nginx.conf"
+        src: "./nginx-conf/nginx.conf"
         dest: "/home/ubuntu/nginx-conf/nginx.conf"
         mode: '0644'
