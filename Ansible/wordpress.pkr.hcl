@@ -70,6 +70,6 @@ build {
   ]
 
   provisioner "ansible" {
-    playbook_file = "./playbook.yml"
+    playbook_file = "./Ansible/playbook.yml"
   }
 }
