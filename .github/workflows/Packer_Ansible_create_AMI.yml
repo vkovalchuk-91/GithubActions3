@@ -32,7 +32,7 @@ jobs:
           packer build Ansible/wordpress.pkr.hcl  2>&1 | sudo tee output.txt
           
           # Витягування AMI ID з логів
-          AMI_ID=$(tail -2 output.txt | awk 'match($0, /ami-.*/) { print substr($0, RSTART, RLENGTH) }')
+          AMI_ID=$(tail -10 output.txt | awk 'match($0, /ami-.*/) { print substr($0, RSTART, RLENGTH) }')
           
           # Збереження AMI ID як змінної середовища для подальших кроків
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
@@ -63,6 +63,6 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           message: |
-            *AMI Id*: `${{ secrets.AMI_ID }}`
+            *AMI Id*: `${{ env.AMI_ID }}`
             *Packer Init Status*: ${{ env.PACKER_INIT_STATUS }}
             *Packer Build Status*: ${{ env.PACKER_BUILD_STATUS }}
